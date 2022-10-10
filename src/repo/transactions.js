@@ -3,8 +3,7 @@ const postgreDb = require("../config/postgre");
 const getTransactions = () => {
   return new Promise((resolve, reject) => {
     const query =
-      // "select * from users join transactions on transactions.id = transactions.user_id ";
-      "select transaction_items.id, products.product_name, transaction_items.quantity_product, transaction_items.size, products.price, transactions.subtotal, transactions.taxandfee, transactions.shipping_cost, transactions.total, transactions.address_detail, transactions.payment_method from transaction_items left join products on transaction_items.products_id = products.id left join transactions on transaction_items.transactions_id = transactions.id left join promos on transaction_items.promos_id = promos.id";
+      "select transaction_items.id, products.product_name, transaction_items.quantity_product, transaction_items.size, products.price, transactions.subtotal, transactions.taxandfee, transactions.shipping_cost, transactions.total, transactions.address_detail, transactions.payment_method, users.phone_number from transaction_items left join products on transaction_items.products_id = products.id left join transactions on transaction_items.transactions_id = transactions.id left join promos on transaction_items.promos_id = promos.id left join users on transactions.user_id = users.id";
     postgreDb.query(query, (error, result) => {
       if (error) {
         console.log(error);
