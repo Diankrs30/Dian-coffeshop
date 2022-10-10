@@ -7,10 +7,10 @@ const promosRouter = express.Router();
 // import transactionController
 const { get, create, edit, drop } = require("../controllers/promos");
 // endpoint
-promosRouter.get("/", get);
-promosRouter.post("/", create);
-promosRouter.patch("/:id", edit);
-promosRouter.delete("/:id", drop);
+promosRouter.get("/get_promos/", get);
+promosRouter.post("/create_promo/", create);
+promosRouter.patch("/edit_promo/:id", edit);
+promosRouter.delete("/delete_promo/:id", drop);
 
 // export router
 module.exports = promosRouter;
