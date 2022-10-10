@@ -3,7 +3,8 @@ const postgreDb = require("../config/postgre");
 const getPromos = () => {
   return new Promise((resolve, reject) => {
     const query =
-      "select id, promo_description, discount, start_discount, end_discount, code_promo, image_promo, products_id from promos";
+      // "select id, promo_description, discount, start_discount, end_discount, code_promo, image_promo, products_id from promos";
+      "select promos.id, products.product_name, promos.promo_description, promos.discount, promos.start_discount, promos.end_discount, promos.code_promo, promos.image_promo from promos left join products on promos.products_id = products.id ";
     postgreDb.query(query, (error, result) => {
       if (error) {
         console.log(error);
@@ -61,6 +62,7 @@ const editPromos = (body, params) => {
         return;
       }
       query += `${key} = $${idx + 1}, `;
+      values.push(body[key]);
     });
     postgreDb
       .query(query, values)

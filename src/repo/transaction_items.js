@@ -4,7 +4,7 @@ const postgreDb = require("../config/postgre");
 const getTransactionItems = () => {
   return new Promise((resolve, reject) => {
     const query =
-      "select id, products_id, quantity_product, payment_id, promos_id, size from transaction_items";
+      "select transaction_items.id, products.product_name, transaction_items.quantity_product,  from transaction_items inner join products on transaction_items.products_id = products.id left join transactions on transaction_items.transactions_id = transactions.id left join promos on transaction_items.promos_id = promos.id";
     postgreDb.query(query, (error, result) => {
       if (error) {
         console.log(error);
@@ -17,11 +17,12 @@ const getTransactionItems = () => {
 const createTransactionItems = (body) => {
   return new Promise((resolve, reject) => {
     const query =
-      "insert into transaction_items (products_id, quantity_product, payment_id, promos_id, size) values ($1,$2,$3,$4,$5)";
-    const { products_id, quantity_product, payment_id, promos_id, size } = body;
+      "insert into transaction_items (products_id, quantity_product, transactions_id, promos_id, size) values ($1,$2,$3,$4,$5)";
+    const { products_id, quantity_product, transactions_id, promos_id, size } =
+      body;
     postgreDb.query(
       query,
-      [products_id, quantity_product, payment_id, promos_id, size],
+      [products_id, quantity_product, transactions_id, promos_id, size],
       (error, result) => {
         if (error) {
           console.log(error);

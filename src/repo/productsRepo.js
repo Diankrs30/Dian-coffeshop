@@ -4,7 +4,8 @@ const postgreDb = require("../config/postgre");
 // CRUD
 const getProducts = (queryString) => {
   let query =
-    "select * from promos right join products on products.id = promos.products_id ";
+    "select products.id, products.product_name, products.product_description, products.price, products.image, products.size_1, products.size_2, products.size_3, products.home_delivery, products.dine_in, products.take_away, products.start_delivery, products.end_delivery, products.stock_product, products.total_selling, promos.discount, promos.code_promo, categories.category_name as category from products left join promos on products.id = promos.products_id left join categories on products.category_id = categories.id  ";
+
   let firstWhere = true;
   if (queryString.search) {
     query += `${
@@ -15,14 +16,15 @@ const getProducts = (queryString) => {
     firstWhere = false;
   }
   if (queryString.category && queryString.category !== "") {
-    query += `${firstWhere ? "WHERE" : "AND"} category_id = ${
-      queryString.category
-    }`;
+    query += `${
+      firstWhere ? "WHERE" : "AND"
+    } lower(categories.category_name) like lower('%${queryString.category}%')`;
     firstWhere = false;
   }
   if (queryString.sort && queryString.sortBy) {
     query += ` ORDER BY ${queryString.sortBy} ${queryString.sort}`;
   }
+
   return new Promise((resolve, reject) => {
     // const query =
     //   "select id, category_id, product_name, product_description, price, image, size_1, size_2, size_3, home_delivery, dine_in, take_away, start_delivery, end_delivery, stock_product from products";
