@@ -1,30 +1,24 @@
-// import express
+require("dotenv").config();
 const { response } = require("express");
 const express = require("express");
-
-// import db
 const postgreDb = require("./src/config/postgre");
-
-// import main router
 const mainRouter = require("./src/routes/mainRouter");
-
-// init express application
 const server = express();
-
 // init port
 const PORT = 8070;
-
 const morgan = require("morgan");
-const logger = morgan("combined");
-
+const logger = morgan(
+  ":method :url :status :res[content-length] - :response-time ms"
+);
 // console.log(morgan);
 // console.log(logger);
-
 // connection to db
 postgreDb
   .connect()
   .then(() => {
     console.log("DB connected");
+    // akses file static yang ada di directory
+    server.use(express.static("./public"));
     // parser untuk body agar input dapat dilakukan lebih dinamis
     server.use(express.json());
     server.use(express.urlencoded({ extended: false }));
