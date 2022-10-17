@@ -18,7 +18,7 @@
 
 <br/>
 
-Dian coffee shop is a web application that sells foods, coffee, and beverage. with this application, customers can order more easily from coffe shop.
+Dian coffee shop is a web application that sells foods, coffee, and beverage. with this application, customers can order more easily from coffee shop.
 
 ## Contents
 
