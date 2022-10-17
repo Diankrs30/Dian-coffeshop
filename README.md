@@ -89,7 +89,7 @@ Endpoint: `/products`
 Clone this repository by run the following code:
 
 ```
-$ git clone <this-repo-url>
+$ git clone https://github.com/Diankrs30/Dian-coffeshop.git
 ```
 
 ### 2. Install dependency packages
