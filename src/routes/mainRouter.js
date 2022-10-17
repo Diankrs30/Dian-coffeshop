@@ -3,11 +3,12 @@ const express = require("express");
 
 // import subrouter
 const usersRouter = require("./usersRouter");
+const authRouter = require("./authRouter");
 const productsRouter = require("./productsRouter");
 const categoriesRouter = require("./categoriesRouter");
 const promosRouter = require("./promosRouter");
 const transactionsRouter = require("./transactionsRouter");
-const transaction_itemsRouter = require("./transaction_itemsRouter");
+const size_productsRouter = require("./size_productsRouter");
 
 // membuat router
 const mainRouter = express.Router();
@@ -17,11 +18,12 @@ const prefix = "/dian-coffeeshop";
 
 // connection subrouter to mainrouter
 mainRouter.use(`${prefix}/users`, usersRouter);
+mainRouter.use(`${prefix}/auth`, authRouter);
 mainRouter.use(`${prefix}/products`, productsRouter);
 mainRouter.use(`${prefix}/categories`, categoriesRouter);
 mainRouter.use(`${prefix}/promos`, promosRouter);
+mainRouter.use(`${prefix}/size_products`, size_productsRouter);
 mainRouter.use(`${prefix}/transactions`, transactionsRouter);
-mainRouter.use(`${prefix}/transaction_items`, transaction_itemsRouter);
 
 // membuat http route
 mainRouter.get("/", (req, res) => {

@@ -1,10 +1,11 @@
-// import database
 const postgreDb = require("../config/postgre");
+const bcrypt = require("bcrypt");
 
 const getUsers = () => {
   return new Promise((resolve, reject) => {
     const query =
-      "select id, email, password_user, phone_number, delivery_address, display_name, first_name, last_name, date_of_birth, gender, image from users";
+      "select id, display_name, first_name, last_name, date_of_birth, gender, phone_number, delivery_address, created_at, updated_at from users";
+
     postgreDb.query(query, (error, result) => {
       if (error) {
         console.log(error);
@@ -15,58 +16,94 @@ const getUsers = () => {
   });
 };
 
-const createUsers = (body) => {
+const getUserProfile = (id) => {
   return new Promise((resolve, reject) => {
     const query =
-      "insert into users (email, password_user, phone_number, delivery_address, display_name, first_name, last_name, date_of_birth, gender, image) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)";
-    // akses body yang sudah di parsing
-    const {
-      email,
-      password_user,
-      phone_number,
-      delivery_address,
-      display_name,
-      first_name,
-      last_name,
-      date_of_birth,
-      gender,
-      image,
-    } = body;
-    postgreDb.query(
-      query,
-      [
-        email,
-        password_user,
-        phone_number,
-        delivery_address,
-        display_name,
-        first_name,
-        last_name,
-        date_of_birth,
-        gender,
-        image,
-      ],
-      (error, queryResult) => {
-        if (error) {
-          console.log(error);
-          return reject(error);
-        }
-        resolve(queryResult);
+      "select id, image, display_name, email, phone_number, delivery_address, first_name, last_name, date_of_birth, gender from users where id = $1";
+    postgreDb.query(query, [id], (error, result) => {
+      if (error) {
+        console.log(error);
+        return reject(error);
       }
-    );
+      return resolve(result);
+    });
   });
 };
 
-const editUsers = (body, params) => {
+const register = (body) => {
+  return new Promise((resolve, reject) => {
+    const { email, password_user, phone_number } = body;
+    bcrypt.hash(password_user, 10, (error, hashedPassword) => {
+      if (error) {
+        console.log(error);
+        return reject(error);
+      }
+      const query =
+        "insert into users (email, password_user, phone_number) values ($1,$2,$3) returning id";
+      postgreDb.query(
+        query,
+        [email, hashedPassword, phone_number],
+        (error, queryResult) => {
+          if (error) {
+            console.log(error);
+            return reject(error);
+          }
+          resolve(queryResult);
+        }
+      );
+    });
+  });
+};
+
+const checkEmail = (email) => {
+  return new Promise((resolve, reject) => {
+    const query = "select * from users where email = $1";
+    postgreDb.query(query, [email], (error, result) => {
+      if (error) {
+        console.log(error);
+        return reject(error);
+      }
+      resolve(result);
+    });
+  });
+};
+
+const getPassword = (id) => {
+  return new Promise((resolve, reject) => {
+    const query = "select * from users where id = $1";
+    console.log(query);
+    postgreDb.query(query, [id], (error, result) => {
+      if (error) {
+        console.log(error);
+        return reject(error);
+      }
+      resolve(result);
+      console.log(result);
+    });
+  });
+};
+
+const editPassword = (id, password) => {
+  return new Promise((resolve, reject) => {
+    const query = " update users set password_user = $1 where id = $2";
+    postgreDb.query(query, [password, id], (error, result) => {
+      if (error) {
+        console.log(error);
+        return reject(error);
+      }
+      resolve(result);
+    });
+  });
+};
+
+const editUsers = (body, id) => {
   return new Promise((resolve, reject) => {
     let query = "update users set ";
     const values = [];
-    // update secara dinamis untuk display_name, first_name, last_name
-    // logika ini dibuat dg mengasumsikan ada middleware validasi (untuk menghilangkan property object dari body yang tidak diinginkan)
     Object.keys(body).forEach((key, idx, array) => {
       if (idx === array.length - 1) {
         query += `${key} = $${idx + 1} where id = $${idx + 2}`;
-        values.push(body[key], params.id);
+        values.push(body[key], id);
         return;
       }
       query += `${key} = $${idx + 1}, `;
@@ -85,6 +122,14 @@ const editUsers = (body, params) => {
   });
 };
 
-const usersRepo = { getUsers, createUsers, editUsers };
+const usersRepo = {
+  getUsers,
+  getUserProfile,
+  register,
+  checkEmail,
+  getPassword,
+  editUsers,
+  editPassword,
+};
 
 module.exports = usersRepo;

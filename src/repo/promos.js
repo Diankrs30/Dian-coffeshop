@@ -3,9 +3,22 @@ const postgreDb = require("../config/postgre");
 const getPromos = () => {
   return new Promise((resolve, reject) => {
     const query =
-      // "select id, promo_description, discount, start_discount, end_discount, code_promo, image_promo, products_id from promos";
       "select promos.id, products.product_name, promos.promo_description, promos.discount, promos.start_discount, promos.end_discount, promos.code_promo, promos.image_promo from promos left join products on promos.products_id = products.id ";
     postgreDb.query(query, (error, result) => {
+      if (error) {
+        console.log(error);
+        return reject(error);
+      }
+      return resolve(result);
+    });
+  });
+};
+
+const getDetailPromo = (id) => {
+  return new Promise((resolve, reject) => {
+    const query =
+      "select promos.id, products.product_name, promos.promo_description, promos.discount, promos.start_discount, promos.end_discount, promos.code_promo, promos.image_promo from promos left join products on promos.products_id = products.id where promos.id = $1 ";
+    postgreDb.query(query, [id], (error, result) => {
       if (error) {
         console.log(error);
         return reject(error);
@@ -18,7 +31,7 @@ const getPromos = () => {
 const createPromos = (body) => {
   return new Promise((resolve, reject) => {
     const query =
-      "insert into promos (promo_description, discount, start_discount, end_discount, code_promo, image_promo, products_id) values ($1,$2,$3,$4,$5,$6,$7)";
+      "insert into promos (promo_description, discount, start_discount, end_discount, code_promo, image_promo, products_id) values ($1,$2,$3,$4,$5,$6,$7) returning id";
 
     const {
       promo_description,
@@ -78,7 +91,7 @@ const editPromos = (body, params) => {
 
 const deletePromos = (params) => {
   return new Promise((resolve, reject) => {
-    const query = "delete from promos where id = $1";
+    const query = "delete from promos where id = $1 RETURNING *";
 
     postgreDb.query(query, [params.id], (error, result) => {
       if (error) {
@@ -92,6 +105,7 @@ const deletePromos = (params) => {
 
 const promosRepo = {
   getPromos,
+  getDetailPromo,
   createPromos,
   editPromos,
   deletePromos,

@@ -4,13 +4,27 @@ const express = require("express");
 const postgreDb = require("../config/postgre");
 // membuat router
 const transactionsRouter = express.Router();
+const isLogin = require("../middleware/isLogin");
+const isAllowed = require("../middleware/isAllowed");
 // import paymentController
-const { get, create, edit, drop } = require("../controllers/transactions");
+const {
+  get,
+  getHistory,
+  getPopuler,
+  create,
+  drop,
+} = require("../controllers/transactions");
 // endpoint
-transactionsRouter.get("/get_transactions/", get);
-transactionsRouter.post("/create_transactions/", create);
-transactionsRouter.patch("/edit_transactions/:id", edit);
-transactionsRouter.delete("/delete_transactions/:id", drop);
+transactionsRouter.get("/detail_transaction/:id", isLogin(), get);
+transactionsRouter.get("/history/", isLogin(), isAllowed("user"), getHistory);
+transactionsRouter.get("/populer/", getPopuler);
+transactionsRouter.post("/create_transactions/", isLogin(), create);
+transactionsRouter.delete(
+  "/delete_history/:id",
+  isLogin(),
+  isAllowed("user"),
+  drop
+);
 
 // export router
 module.exports = transactionsRouter;

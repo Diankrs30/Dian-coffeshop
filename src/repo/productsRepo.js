@@ -1,10 +1,11 @@
 // import database
 const postgreDb = require("../config/postgre");
+const { post } = require("../routes/usersRouter");
 
 // CRUD
-const getProducts = (queryString) => {
+const getProducts = (queryString, limit, offset) => {
   let query =
-    "select products.id, products.product_name, products.product_description, products.price, products.image, products.size_1, products.size_2, products.size_3, products.home_delivery, products.dine_in, products.take_away, products.start_delivery, products.end_delivery, products.stock_product, products.total_selling, promos.discount, promos.code_promo, categories.category_name as category from products left join promos on products.id = promos.products_id left join categories on products.category_id = categories.id  ";
+    "select products.id, products.product_name, products.product_description, products.price, products.image, products.start_delivery, products.end_delivery, products.created_at, products.stock_product, products.total_selling, promos.discount, promos.code_promo, categories.category_name as category from products left join promos on products.id = promos.products_id left join categories on products.category_id = categories.id  ";
 
   let firstWhere = true;
   if (queryString.search) {
@@ -18,17 +19,17 @@ const getProducts = (queryString) => {
   if (queryString.category && queryString.category !== "") {
     query += `${
       firstWhere ? "WHERE" : "AND"
-    } lower(categories.category_name) like lower('%${queryString.category}%')`;
+    } lower(categories.category_name) like lower('${queryString.category}%')`;
     firstWhere = false;
   }
-  if (queryString.sort && queryString.sortBy) {
-    query += ` ORDER BY ${queryString.sortBy} ${queryString.sort}`;
+  if (queryString.order && queryString.sort) {
+    query += ` ORDER BY ${queryString.sort} ${queryString.order}`;
   }
 
-  return new Promise((resolve, reject) => {
-    // const query =
-    //   "select id, category_id, product_name, product_description, price, image, size_1, size_2, size_3, home_delivery, dine_in, take_away, start_delivery, end_delivery, stock_product from products";
+  query += ` LIMIT ${limit} OFFSET ${offset}`;
 
+  // console.log(query);
+  return new Promise((resolve, reject) => {
     postgreDb.query(query, (error, result) => {
       if (error) {
         console.log(error);
@@ -39,10 +40,54 @@ const getProducts = (queryString) => {
   });
 };
 
+const getTotalProduct = (queryString) => {
+  let query =
+    "select COUNT(*) from products left join promos on products.id = promos.products_id left join categories on products.category_id = categories.id  ";
+
+  let firstWhere = true;
+  if (queryString.search) {
+    query += `${
+      firstWhere ? "WHERE" : "AND"
+    } lower(product_name) like lower('%${
+      queryString.search
+    }%') OR lower(code_promo) like lower('%${queryString.search}%')`;
+    firstWhere = false;
+  }
+  if (queryString.category && queryString.category !== "") {
+    query += `${
+      firstWhere ? "WHERE" : "AND"
+    } lower(categories.category_name) like lower('${queryString.category}%')`;
+    firstWhere = false;
+  }
+  return new Promise((resolve, reject) => {
+    postgreDb.query(query, (error, result) => {
+      if (error) {
+        console.log(error);
+        return reject(error);
+      }
+      return resolve(result);
+    });
+  });
+};
+const getProductDetail = (id) => {
+  return new Promise((resolve, reject) => {
+    const query =
+      "select products.id, products.product_name, products.product_description, products.price, products.image, products.start_delivery, products.end_delivery, products.created_at, products.stock_product, products.total_selling, promos.discount, promos.code_promo, categories.category_name as category from products left join promos on products.id = promos.products_id left join categories on products.category_id = categories.id where products.id = $1";
+
+    postgreDb.query(query, [id], (error, result) => {
+      if (error) {
+        console.log(error);
+        return reject(error);
+      }
+      resolve(result);
+    });
+  });
+};
+
 const createProduct = (body) => {
   return new Promise((resolve, reject) => {
     const query =
-      "insert into products (category_id, product_name, product_description, price, image, size_1, size_2, size_3, home_delivery, dine_in, take_away, start_delivery, end_delivery, stock_product, total_selling) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)";
+      "insert into products (category_id, product_name, product_description, price, image, start_delivery, end_delivery, stock_product, total_selling) values ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING id";
 
     const {
       category_id,
@@ -50,12 +95,6 @@ const createProduct = (body) => {
       product_description,
       price,
       image,
-      size_1,
-      size_2,
-      size_3,
-      home_delivery,
-      dine_in,
-      take_away,
       start_delivery,
       end_delivery,
       stock_product,
@@ -70,12 +109,6 @@ const createProduct = (body) => {
         product_description,
         price,
         image,
-        size_1,
-        size_2,
-        size_3,
-        home_delivery,
-        dine_in,
-        take_away,
         start_delivery,
         end_delivery,
         stock_product,
@@ -91,7 +124,7 @@ const createProduct = (body) => {
     );
   });
 };
-// perlu dicek ulang karena error
+
 const editProducts = (body, params) => {
   return new Promise((resolve, reject) => {
     let query = "update products set ";
@@ -105,7 +138,6 @@ const editProducts = (body, params) => {
       query += `${key} = $${idx + 1}, `;
       values.push(body[key]);
     });
-
     postgreDb
       .query(query, values)
       .then((response) => {
@@ -120,7 +152,7 @@ const editProducts = (body, params) => {
 
 const deleteProduct = (params) => {
   return new Promise((resolve, reject) => {
-    const query = "delete from products where id = $1";
+    const query = "delete from products where id = $1 RETURNING *";
 
     postgreDb.query(query, [params.id], (error, result) => {
       if (error) {
@@ -133,6 +165,8 @@ const deleteProduct = (params) => {
 };
 const productsRepo = {
   getProducts,
+  getProductDetail,
+  getTotalProduct,
   createProduct,
   editProducts,
   deleteProduct,

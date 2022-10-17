@@ -23,13 +23,14 @@ const promosController = {
       });
     }
   },
-  create: async (req, res) => {
+
+  getDetailPromo: async (req, res) => {
     try {
-      const result = await promosRepo.createPromos(req.body);
+      const result = await promosRepo.getDetailPromo(req.params.id);
       return response(res, {
         status: 200,
-        data: result,
-        message: "Create success",
+        data: result.rows,
+        message: "Get all success",
       });
     } catch (error) {
       return response(res, {
@@ -39,12 +40,31 @@ const promosController = {
       });
     }
   },
+
+  create: async (req, res) => {
+    try {
+      const result = await promosRepo.createPromos(req.body);
+      return response(res, {
+        status: 200,
+        data: { ...result.rows[0], ...req.body },
+        message: "Create success",
+      });
+    } catch (error) {
+      console.log(error);
+      return response(res, {
+        error,
+        status: 500,
+        message: "Internal service error",
+      });
+    }
+  },
+
   edit: async (req, res) => {
     try {
       const result = await promosRepo.editPromos(req.body, req.params);
       return response(res, {
         status: 200,
-        data: result,
+        data: { ...req.params, ...req.body },
         message: "Edit success",
       });
     } catch (error) {
@@ -55,11 +75,13 @@ const promosController = {
       });
     }
   },
+
   drop: async (req, res) => {
     try {
       const result = await promosRepo.deletePromos(req.params);
       return response(res, {
         status: 200,
+        data: { ...req.params, ...result.rows[0] },
         message: "Delete success",
       });
     } catch (error) {

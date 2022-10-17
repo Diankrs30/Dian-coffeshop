@@ -1,12 +1,13 @@
-// import express
 const express = require("express");
-// import db
 const postgreDb = require("../config/postgre");
-// membuat router
 const productsRouter = express.Router();
-// import productsController
+const isLogin = require("../middleware/isLogin");
+const validate = require("../middleware/validate");
+const isAllowed = require("../middleware/isAllowed");
+const imagesUpload = require("../middleware/upload");
 const {
   get,
+  getProductDetail,
   create,
   edit,
   drop,
@@ -14,8 +15,48 @@ const {
 
 // endpoint
 productsRouter.get("/get_products/", get);
-productsRouter.post("/create_products/", create);
-productsRouter.patch("/edit_products/:id", edit);
-productsRouter.delete("/delete_products/:id", drop);
+productsRouter.get("/product_detail/:id", isLogin(), getProductDetail);
+productsRouter.post(
+  "/create_product/",
+  isLogin(),
+  isAllowed("admin"),
+  imagesUpload.single("image"),
+  validate.body(
+    "product_name",
+    "product_description",
+    "price",
+    "image",
+    "strat_delivery",
+    "end_delivery",
+    "stock_product",
+    "total_selling",
+    "category_id"
+  ),
+  create
+);
+productsRouter.patch(
+  "/edit_products/:id",
+  isLogin(),
+  isAllowed("admin"),
+  imagesUpload.single("image"),
+  validate.body(
+    "product_name",
+    "product_description",
+    "price",
+    "image",
+    "strat_delivery",
+    "end_delivery",
+    "stock_product",
+    "total_selling",
+    "category_id"
+  ),
+  edit
+);
+productsRouter.delete(
+  "/delete_products/:id",
+  isLogin(),
+  isAllowed("admin"),
+  drop
+);
 // export router
 module.exports = productsRouter;

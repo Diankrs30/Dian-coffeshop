@@ -1,14 +1,29 @@
-// import express
 const express = require("express");
-// import db
 const postgreDb = require("../config/postgre");
-// membuat router
 const usersRouter = express.Router();
-// import userController
-const { get, create, edit } = require("../controllers/usersController");
-// http://localhost:8070/dian-coffeeshop/users (endpoint: users)
-usersRouter.get("/get_users/", get);
-usersRouter.post("/create_user/", create);
-usersRouter.patch("/edit_user/:id", edit);
-// export router
+const isLogin = require("../middleware/isLogin");
+const isAllowed = require("../middleware/isAllowed");
+const validate = require("../middleware/validate");
+const imagesUpload = require("../middleware/upload");
+const {
+  get,
+  getProfile,
+  register,
+  editPassword,
+  editUser,
+} = require("../controllers/usersController");
+
+usersRouter.get("/get_users/", isLogin(), isAllowed("admin"), get);
+usersRouter.get("/profile_user/", isLogin(), isAllowed("user"), getProfile);
+usersRouter.post("/register/", validate.registerBody, register);
+usersRouter.patch("/account/", isLogin(), isAllowed("user"), editPassword);
+usersRouter.patch(
+  "/profile/",
+  isLogin(),
+  isAllowed("user"),
+  imagesUpload.single("image"),
+  validate.body(),
+  editUser
+);
+
 module.exports = usersRouter;
