@@ -1,5 +1,7 @@
 const multer = require("multer");
 const path = require("path");
+const { callbackify } = require("util");
+const response = require("../helper/response");
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -16,6 +18,40 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage });
+let upload = multer({
+  storage: storage,
+  fileFilter: function (req, file, cb) {
+    const ext = path.extname(file.originalname);
+    if (ext !== ".png" && ext !== ".jpg" && ext !== ".jpeg") {
+      return cb({
+        message: "check your file type. Only .jpg, .jpeg, and .png are allowed",
+      });
+    }
+    callbackify(null, true);
+  },
+  limits: { fileSize: 2 * 1024 * 1024 },
+}).single("image");
 
-module.exports = upload;
+exports.fileUpload = async (req, res, next) => {
+  await upload(req, res, function (error) {
+    if (error) {
+      //instanceof multer.MulterError
+      res.status(500);
+      if (error.code == "LIMIT_FILE_SIZE") {
+        return response(res, {
+          data: null,
+          status: 400,
+          message: "File Size is too large. Allowed file size is 1Mb",
+        });
+      } else {
+        return response(res, {
+          data: null,
+          status: 400,
+          message: "General Error.",
+          error,
+        });
+      }
+    }
+    return next();
+  });
+};
