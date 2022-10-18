@@ -14,7 +14,7 @@ const auth = {
           message: "Format email is wrong",
         });
       }
-      const checkEmail = await usersRepo.checkEmail(req.body.email);
+      const checkEmail = await usersRepo.checkEmailAndPhone(req.body.email);
       //   console.log(checkEmail.rows);
       if (checkEmail.rows.length === 0) {
         return response(res, {
@@ -48,7 +48,7 @@ const auth = {
       // console.log(token);
       return response(res, {
         status: 200,
-        data: { name: payload.name, role: payload.role, token },
+        data: { name: payload.email, role: payload.role, token },
         message: "Login success",
       });
     } catch (error) {
