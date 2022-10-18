@@ -27,7 +27,7 @@ let upload = multer({
         message: "check your file type. Only .jpg, .jpeg, and .png are allowed",
       });
     }
-    callbackify(null, true);
+    cb(null, true);
   },
   limits: { fileSize: 2 * 1024 * 1024 },
 }).single("image");
@@ -41,7 +41,7 @@ exports.fileUpload = async (req, res, next) => {
         return response(res, {
           data: null,
           status: 400,
-          message: "File Size is too large. Allowed file size is 1Mb",
+          message: "File Size is too large. Allowed file size is 2Mb",
         });
       } else {
         return response(res, {
