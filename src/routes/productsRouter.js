@@ -1,10 +1,10 @@
 const express = require("express");
 const postgreDb = require("../config/postgre");
 const productsRouter = express.Router();
-const isLogin = require("../middleware/isLogin");
+const { isLogin } = require("../middleware/isLogin");
 const validate = require("../middleware/validate");
 const isAllowed = require("../middleware/isAllowed");
-const imagesUpload = require("../middleware/upload");
+const { fileUpload } = require("../middleware/upload");
 const {
   get,
   getProductDetail,
@@ -15,12 +15,13 @@ const {
 
 // endpoint
 productsRouter.get("/get_products/", get);
-productsRouter.get("/product_detail/:id", isLogin(), getProductDetail);
+productsRouter.get("/product_detail/:id", isLogin, getProductDetail);
 productsRouter.post(
   "/create_product/",
-  isLogin(),
+  isLogin,
   isAllowed("admin"),
-  imagesUpload.single("image"),
+  // imagesUpload.single("image"),
+  fileUpload,
   validate.body(
     "product_name",
     "product_description",
@@ -36,9 +37,10 @@ productsRouter.post(
 );
 productsRouter.patch(
   "/edit_products/:id",
-  isLogin(),
+  isLogin,
   isAllowed("admin"),
-  imagesUpload.single("image"),
+  // imagesUpload.single("image"),
+  fileUpload,
   validate.body(
     "product_name",
     "product_description",
@@ -54,7 +56,7 @@ productsRouter.patch(
 );
 productsRouter.delete(
   "/delete_products/:id",
-  isLogin(),
+  isLogin,
   isAllowed("admin"),
   drop
 );
