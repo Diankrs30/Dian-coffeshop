@@ -20,7 +20,7 @@ const prefix = "/dian-coffeeshop";
 mainRouter.use(`${prefix}/users`, usersRouter);
 mainRouter.use(`${prefix}/auth`, authRouter);
 mainRouter.use(`${prefix}/products`, productsRouter);
-mainRouter.use(`${prefix}/categories`, categoriesRouter);
+// mainRouter.use(`${prefix}/categories`, categoriesRouter);
 mainRouter.use(`${prefix}/promos`, promosRouter);
 mainRouter.use(`${prefix}/size_products`, size_productsRouter);
 mainRouter.use(`${prefix}/transactions`, transactionsRouter);
