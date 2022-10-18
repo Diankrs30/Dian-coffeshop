@@ -2,7 +2,7 @@ const response = require("../helper/response");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const usersRepo = require("../repo/usersRepo");
-const { getUsers } = require("../repo/usersRepo");
+const { token } = require("morgan");
 
 const auth = {
   login: async (req, res) => {
@@ -46,11 +46,27 @@ const auth = {
         issuer: process.env.ISSUER,
       });
       // console.log(token);
+      await usersRepo.insertWhitelistToken(token);
       return response(res, {
         status: 200,
         data: { name: payload.email, role: payload.role, token },
         message: "Login success",
       });
+    } catch (error) {
+      console.log(error);
+      return response(res, {
+        error,
+        status: 500,
+        message: "Internal server error",
+      });
+    }
+  },
+  logout: async (req, res) => {
+    try {
+      const token = req.header("x-access-token");
+      // console.log(token);
+      const user = await usersRepo.deleteWhitelistToken(token);
+      response(res, { status: 200, message: "Logout success" });
     } catch (error) {
       console.log(error);
       return response(res, {
