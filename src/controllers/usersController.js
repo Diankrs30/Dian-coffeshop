@@ -5,20 +5,43 @@ const bcrypt = require("bcrypt");
 const userController = {
   get: async (req, res) => {
     try {
-      const result = await usersRepo.getUsers();
-      // res.status(200).json({
-      //   result: response.rows,
-      // });
+      let queryParams = req.query;
+      console.log(queryParams);
+      let page = Number(queryParams.page);
+      const limit = Number(queryParams.limit);
+      const offset = (page - 1) * limit;
+
+      const result = await usersRepo.getUsers(queryParams, limit, offset);
+      console.log(result.rows);
+      const totalData = await usersRepo.getTotalUser(queryParams);
+      const totalPage = Math.ceil(totalData.rows[0].count / limit);
+      const path = `${req.baseUrl + req.route.path}?page`;
+
+      page = Number(page);
+      let queryString = "";
+      Object.keys(queryParams).forEach((key) => {
+        if (key !== "page" && key !== "path") {
+          queryString += `&${key}=${queryParams[key]}`;
+        }
+      });
+      const prevLink = page !== 1 ? `${path}=${page - 1}${queryString}` : null;
+      const nextLink =
+        page !== totalPage ? `${path}=${page + 1}${queryString}` : null;
+
+      const meta = {
+        totalData: Number(totalData.rows[0].count),
+        totalPage: totalPage,
+        next: nextLink,
+        prev: prevLink,
+      };
+
       return response(res, {
         status: 200,
-        // data: result.rows,
         data: result.rows,
+        meta: meta,
         message: "Get all success",
       });
     } catch (error) {
-      // res.status(500).json({
-      //   msg: "Server internal error",
-      // });
       console.log(error);
       return response(res, {
         error,
@@ -53,14 +76,18 @@ const userController = {
           message: "Format email is wrong",
         });
       }
-      const checkEmail = await usersRepo.checkEmail(req.body.email);
-      // console.log(checkEmail.rows.length);
-      if (checkEmail.rows.length > 0) {
+      const checkEmailAndPhone = await usersRepo.checkEmailAndPhone(
+        req.body.email,
+        req.body.phone_number
+      );
+      console.log(checkEmailAndPhone.rows.length);
+      if (checkEmailAndPhone.rows.length > 0) {
         return response(res, {
           status: 400,
-          message: "Email has been registered",
+          message: "Email/phone number has been registered",
         });
       }
+
       const result = await usersRepo.register(req.body);
       return response(res, {
         status: 200,
@@ -85,7 +112,7 @@ const userController = {
     // console.log(req.userPayload.user_id);
     const id = req.userPayload.user_id;
     try {
-      console.log(id);
+      // console.log(id);
       const checkPwd = await usersRepo.getPassword(id);
       // console.log(checkPwd.rows[0]);
       const isValid = await bcrypt.compare(
@@ -112,14 +139,14 @@ const userController = {
     }
   },
   editUser: async (req, res) => {
-    let body = req.body;
-    if (req.file) {
-      const image = `/images/${req.file.filename}`;
-      body = { ...body, image };
-    }
     // console.log(req.userPayload.user_id);
-    const id = req.userPayload.user_id;
     try {
+      const id = req.userPayload.user_id;
+      let body = req.body;
+      if (req.file) {
+        const image = `/images/${req.file.filename}`;
+        body = { ...body, image };
+      }
       const result = await usersRepo.editUsers(body, id);
       return response(res, {
         status: 200,
