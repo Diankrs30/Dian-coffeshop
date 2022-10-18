@@ -1,11 +1,59 @@
 const postgreDb = require("../config/postgre");
 const bcrypt = require("bcrypt");
 
-const getUsers = () => {
-  return new Promise((resolve, reject) => {
-    const query =
-      "select id, display_name, first_name, last_name, date_of_birth, gender, phone_number, delivery_address, created_at, updated_at from users";
+const getUsers = (queryString, limit, offset) => {
+  let query =
+    "select id, display_name, email, image, first_name, last_name, date_of_birth, gender, phone_number, delivery_address, created_at, updated_at from users ";
 
+  let firstWhere = true;
+  if (queryString.search) {
+    query += `${firstWhere ? "WHERE" : "AND"} lower(first_name) like lower('%${
+      queryString.search
+    }%') OR phone_number like '%${queryString.search}%'`;
+    firstWhere = false;
+  }
+  if (queryString.gender && queryString.gender !== "") {
+    query += `${firstWhere ? "WHERE" : "AND"} lower(gender) = lower('${
+      queryString.gender
+    }') `;
+    firstWhere = false;
+  }
+  if (queryString.order && queryString.sort) {
+    query += ` ORDER BY ${queryString.sort} ${queryString.order}`;
+  }
+  query += ` LIMIT ${limit} OFFSET ${offset}`;
+
+  console.log(query);
+
+  return new Promise((resolve, reject) => {
+    postgreDb.query(query, (error, result) => {
+      if (error) {
+        console.log(error);
+        return reject(error);
+      }
+      return resolve(result);
+    });
+  });
+};
+
+const getTotalUser = (queryString) => {
+  let query = "select COUNT(*) from users ";
+  let firstWhere = true;
+  if (queryString.search) {
+    query += `${firstWhere ? "WHERE" : "AND"} lower(first_name) like lower('%${
+      queryString.search
+    }%') OR phone_number like '%${queryString.search}%' `;
+    firstWhere = false;
+  }
+  if (queryString.gender && queryString.gender !== "") {
+    query += `${firstWhere ? "WHERE" : "AND"} lower(gender) = lower('${
+      queryString.gender
+    }') `;
+    firstWhere = false;
+  }
+
+  // console.log(query);
+  return new Promise((resolve, reject) => {
     postgreDb.query(query, (error, result) => {
       if (error) {
         console.log(error);
@@ -17,6 +65,7 @@ const getUsers = () => {
 };
 
 const getUserProfile = (id) => {
+  // console.log(id);
   return new Promise((resolve, reject) => {
     const query =
       "select id, image, display_name, email, phone_number, delivery_address, first_name, last_name, date_of_birth, gender from users where id = $1";
@@ -55,10 +104,10 @@ const register = (body) => {
   });
 };
 
-const checkEmail = (email) => {
+const checkEmailAndPhone = (email, phone_number) => {
   return new Promise((resolve, reject) => {
-    const query = "select * from users where email = $1";
-    postgreDb.query(query, [email], (error, result) => {
+    const query = "select * from users where email = $1 or phone_number = $2";
+    postgreDb.query(query, [email, phone_number], (error, result) => {
       if (error) {
         console.log(error);
         return reject(error);
@@ -122,14 +171,57 @@ const editUsers = (body, id) => {
   });
 };
 
+const insertWhitelistToken = (token) => {
+  return new Promise((resolve, reject) => {
+    const query = "insert into white_list_token (token) values ($1) ";
+    postgreDb.query(query, [token], (error, result) => {
+      if (error) {
+        console.log(error);
+        return reject(error);
+      }
+      resolve(result);
+    });
+  });
+};
+
+const checkWhitelistToken = (token) => {
+  return new Promise((resolve, reject) => {
+    const query = "select * from white_list_token where token = $1";
+    postgreDb.query(query, [token], (error, result) => {
+      if (error) {
+        console.log(error);
+        return reject(error);
+      }
+      resolve(result);
+    });
+  });
+};
+
+const deleteWhitelistToken = (token) => {
+  return new Promise((resolve, reject) => {
+    const query = "delete from white_list_token where token = $1 ";
+    postgreDb.query(query, [token], (error, result) => {
+      if (error) {
+        console.log(error);
+        return reject(error);
+      }
+      resolve(result);
+    });
+  });
+};
+
 const usersRepo = {
   getUsers,
+  getTotalUser,
   getUserProfile,
   register,
-  checkEmail,
+  checkEmailAndPhone,
   getPassword,
   editUsers,
   editPassword,
+  insertWhitelistToken,
+  checkWhitelistToken,
+  deleteWhitelistToken,
 };
 
 module.exports = usersRepo;
