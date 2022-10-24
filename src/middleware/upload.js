@@ -44,6 +44,7 @@ exports.fileUpload = async (req, res, next) => {
           message: "File Size is too large. Allowed file size is 2Mb",
         });
       } else {
+        console.log(error);
         return response(res, {
           data: null,
           status: 400,
