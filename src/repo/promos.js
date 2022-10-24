@@ -1,9 +1,45 @@
 const postgreDb = require("../config/postgre");
 
-const getPromos = () => {
+const getPromos = (queryString, limit, offset) => {
   return new Promise((resolve, reject) => {
-    const query =
-      "select promos.id, products.product_name, promos.promo_description, promos.discount, promos.start_discount, promos.end_discount, promos.code_promo, promos.image_promo from promos left join products on promos.products_id = products.id ";
+    let query =
+      "select promos.id, products.product_name, promos.promo_description, promos.discount, promos.start_discount, promos.end_discount, promos.code_promo, promos.image from promos left join products on promos.products_id = products.id ";
+
+    let firstWhere = true;
+    if (queryString.search) {
+      query += `${
+        firstWhere ? "WHERE" : "AND"
+      } lower(code_promo) like lower('%${queryString.search}%')`;
+      firstWhere = false;
+    }
+    if (queryString.order && queryString.sort) {
+      query += ` ORDER BY ${queryString.sort} ${queryString.order}`;
+    }
+    query += ` LIMIT ${limit} OFFSET ${offset}`;
+
+    postgreDb.query(query, (error, result) => {
+      if (error) {
+        console.log(error);
+        return reject(error);
+      }
+      return resolve(result);
+    });
+  });
+};
+
+const getTotalPromos = (queryString) => {
+  return new Promise((resolve, reject) => {
+    let query =
+      "select COUNT(*) from promos left join products on promos.products_id = products.id ";
+
+    let firstWhere = true;
+    if (queryString.search) {
+      query += `${
+        firstWhere ? "WHERE" : "AND"
+      } lower(code_promo) like lower('%${queryString.search}%')`;
+      firstWhere = false;
+    }
+
     postgreDb.query(query, (error, result) => {
       if (error) {
         console.log(error);
@@ -17,7 +53,7 @@ const getPromos = () => {
 const getDetailPromo = (id) => {
   return new Promise((resolve, reject) => {
     const query =
-      "select promos.id, products.product_name, promos.promo_description, promos.discount, promos.start_discount, promos.end_discount, promos.code_promo, promos.image_promo from promos left join products on promos.products_id = products.id where promos.id = $1 ";
+      "select promos.id, products.product_name, promos.promo_description, promos.discount, promos.start_discount, promos.end_discount, promos.code_promo, promos.image from promos left join products on promos.products_id = products.id where promos.id = $1 ";
     postgreDb.query(query, [id], (error, result) => {
       if (error) {
         console.log(error);
@@ -31,7 +67,7 @@ const getDetailPromo = (id) => {
 const createPromos = (body) => {
   return new Promise((resolve, reject) => {
     const query =
-      "insert into promos (promo_description, discount, start_discount, end_discount, code_promo, image_promo, products_id) values ($1,$2,$3,$4,$5,$6,$7) returning id";
+      "insert into promos (promo_description, discount, start_discount, end_discount, code_promo, image, products_id) values ($1,$2,$3,$4,$5,$6,$7) returning id";
 
     const {
       promo_description,
@@ -39,7 +75,7 @@ const createPromos = (body) => {
       start_discount,
       end_discount,
       code_promo,
-      image_promo,
+      image,
       products_id,
     } = body;
     postgreDb.query(
@@ -50,7 +86,7 @@ const createPromos = (body) => {
         start_discount,
         end_discount,
         code_promo,
-        image_promo,
+        image,
         products_id,
       ],
       (error, result) => {
@@ -105,6 +141,7 @@ const deletePromos = (params) => {
 
 const promosRepo = {
   getPromos,
+  getTotalPromos,
   getDetailPromo,
   createPromos,
   editPromos,
