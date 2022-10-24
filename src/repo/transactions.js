@@ -3,8 +3,8 @@ const postgreDb = require("../config/postgre");
 const getAllTransactions = (id) => {
   return new Promise((resolve, reject) => {
     const query =
-      // "select transaction.id, users.display_name, products.product_name, products.price, size_products.size_product, transaction_product_size.quantity, transaction_product_size.total_price, transaction.tax_and_fee, transaction.shipping_cost, transaction.address_detail, users.phone_number, payment_methods.payment_method, delivery_methods.method_delivery, transaction.set_time, transaction.status_order from transaction_product_size left join transaction on transaction_product_size.transactions_id = transaction.id left join products on transaction_product_size.products_id = products.id left join size_products on transaction_product_size.size_products_id = size_products.id left join users on transaction.user_id = users.id left join payment_methods on transaction.payment_methods_id = payment_methods.id left join delivery_methods on transaction.delivery_methods_id = delivery_methods.id where transaction_size_product.id = $1";
-      "select transaction_product_size.id, products.product_name, products.price, transaction.status_order from transaction join transaction_product_size on transaction_product_size.transactions_id = transaction.id join products on transaction_product_size.products_id = products.id where transaction_product_size.id = $1 order by transaction_product_size.id";
+      "select transaction.id, users.display_name, products.product_name, products.price, size_products.size_product, transaction_product_size.quantity, transaction_product_size.total_price, transaction.tax_and_fee, transaction.shipping_cost, transaction.address_detail, users.phone_number, payment_methods.payment_method, delivery_methods.method_delivery, transaction.set_time, transaction.status_order from transaction_product_size left join transaction on transaction_product_size.transactions_id = transaction.id left join products on transaction_product_size.products_id = products.id left join size_products on transaction_product_size.size_products_id = size_products.id left join users on transaction.user_id = users.id left join payment_methods on transaction.payment_methods_id = payment_methods.id left join delivery_methods on transaction.delivery_methods_id = delivery_methods.id where transaction.id = $1";
+    // "select transaction_product_size.id, products.product_name, products.price, transaction.status_order from transaction join transaction_product_size on transaction_product_size.transactions_id = transaction.id join products on transaction_product_size.products_id = products.id where transaction_product_size.id = $1 order by transaction_product_size.id";
     // console.log(query);
     postgreDb.query(query, [id], (error, result) => {
       if (error) {
@@ -34,12 +34,13 @@ const getTransactionByUserId = (user_id, limit, offset) => {
   });
 };
 
-const getTotalHistory = () => {
+const getTotalHistory = (user_id) => {
+  console.log(user_id);
   return new Promise((resolve, reject) => {
     const query =
-      "select COUNT(*) from transaction join transaction_product_size on transaction_product_size.transactions_id = transaction.id join products on transaction_product_size.products_id = products.id";
+      "select COUNT(*) from transaction join transaction_product_size on transaction_product_size.transactions_id = transaction.id join products on transaction_product_size.products_id = products.id where transaction_product_size.user_id = $1";
 
-    postgreDb.query(query, (error, result) => {
+    postgreDb.query(query, [user_id], (error, result) => {
       if (error) {
         console.log(error);
         return reject(error);
@@ -138,7 +139,30 @@ const createTransactionsItems = (
     );
   });
 };
-
+const editTransaction = (body, params) => {
+  return new Promise((resolve, reject) => {
+    let query = "update transaction set ";
+    const values = [];
+    Object.keys(body).forEach((key, idx, array) => {
+      if (idx === array.length - 1) {
+        query += `${key} = $${idx + 1} where id = $${idx + 2}`;
+        values.push(body[key], params.id);
+        return;
+      }
+      query += `${key} = $${idx + 1}, `;
+      values.push(body[key]);
+    });
+    postgreDb
+      .query(query, values)
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((error) => {
+        console.log(error);
+        reject(error);
+      });
+  });
+};
 const deleteTransactions = (params) => {
   return new Promise((resolve, reject) => {
     const query = "delete from transaction_poduct_size where id = $1";
@@ -160,6 +184,7 @@ const transactionsRepo = {
   getTransactionPopuler,
   createTransactions,
   createTransactionsItems,
+  editTransaction,
   deleteTransactions,
 };
 

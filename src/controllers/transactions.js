@@ -20,7 +20,6 @@ const transactionsController = {
     }
   },
   getHistory: async (req, res) => {
-    //get success tpi gk ada datanya
     const user_id = req.userPayload.user_id;
     try {
       // const result = await transactionsRepo.getTransactionByUserId(user_id);
@@ -41,7 +40,10 @@ const transactionsController = {
         limit,
         offset
       );
-      const totalData = await transactionsRepo.getTotalHistory(queryParams);
+      const totalData = await transactionsRepo.getTotalHistory(
+        user_id,
+        queryParams
+      );
       const totalPage = Math.ceil(totalData.rows[0].count / limit);
       const path = `${req.baseUrl + req.route.path}?page`;
 
@@ -103,6 +105,7 @@ const transactionsController = {
   create: async (req, res) => {
     try {
       const body = req.body;
+      console.log(body);
       const user_id = req.userPayload.user_id;
       const payment = await transactionsRepo.createTransactions(body, user_id);
       const transaction_id = payment.rows[0].id;
@@ -110,7 +113,7 @@ const transactionsController = {
       let transaction_item = [];
       await Promise.all(
         product_item.map(async (product) => {
-          const { price, quantity } = product;
+          const { price, promo, quantity } = product;
           const total_price = price * quantity;
           const payment_items = await transactionsRepo.createTransactionsItems(
             product,
@@ -124,7 +127,7 @@ const transactionsController = {
             size_products_id: product.size_products_id,
             quantity: product.quantity,
             total_price,
-            user_id,
+            // user_id,
           };
           transaction_item.push(temp);
         })
@@ -149,6 +152,24 @@ const transactionsController = {
         status: 200,
         data: result,
         message: "Create success",
+      });
+    } catch (error) {
+      console.log(error);
+      return response(res, {
+        error,
+        status: 500,
+        message: "Internal server error",
+      });
+    }
+  },
+  edit: async (req, res) => {
+    try {
+      let body = req.body;
+      const result = await transactionsRepo.editTransaction(body, req.params);
+      return response(res, {
+        status: 200,
+        data: { ...req.params, ...body },
+        message: "Edit success",
       });
     } catch (error) {
       console.log(error);
