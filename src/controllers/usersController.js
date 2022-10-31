@@ -15,7 +15,10 @@ const userController = {
       console.log(result.rows);
       const totalData = await usersRepo.getTotalUser(queryParams);
       const totalPage = Math.ceil(totalData.rows[0].count / limit);
-      const path = `${req.baseUrl + req.route.path}?page`;
+      const path = `http://${
+        req.get("host") + req.baseUrl + req.route.path
+      }?page`;
+      // const path = `${req.baseUrl + req.route.path}?page`;
 
       page = Number(page);
       let queryString = "";

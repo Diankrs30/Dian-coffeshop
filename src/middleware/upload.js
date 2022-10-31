@@ -3,7 +3,7 @@ const path = require("path");
 const { callbackify } = require("util");
 const response = require("../helper/response");
 
-const storage = multer.diskStorage({
+const Storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "./public/images");
   },
@@ -18,8 +18,8 @@ const storage = multer.diskStorage({
   },
 });
 
-let upload = multer({
-  storage: storage,
+let Upload = multer({
+  storage: Storage,
   fileFilter: function (req, file, cb) {
     const ext = path.extname(file.originalname);
     if (ext !== ".png" && ext !== ".jpg" && ext !== ".jpeg") {
@@ -33,7 +33,7 @@ let upload = multer({
 }).single("image");
 
 exports.fileUpload = async (req, res, next) => {
-  await upload(req, res, function (error) {
+  await diskUpload(req, res, function (error) {
     if (error) {
       //instanceof multer.MulterError
       res.status(500);

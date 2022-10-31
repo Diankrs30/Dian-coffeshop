@@ -3,6 +3,8 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const usersRepo = require("../repo/usersRepo");
 const { token } = require("morgan");
+const { Client } = require("pg");
+const client = require("../config/redis");
 
 const auth = {
   login: async (req, res) => {
@@ -52,6 +54,12 @@ const auth = {
         data: { name: payload.email, role: payload.role, token },
         message: "Login success",
       });
+
+      // client.on("connect", function () {
+      //   console.log("Redis plugged in.");
+      // });
+      // await client.connect();
+      // await client.set();
     } catch (error) {
       console.log(error);
       return response(res, {

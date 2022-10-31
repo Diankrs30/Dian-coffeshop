@@ -12,6 +12,8 @@ const {
   edit,
   drop,
 } = require("../controllers/productsController");
+const { memoryUpload, errorHandler } = require("../middleware/uploadCD");
+const cloudinaryUploader = require("../middleware/cloudinary");
 
 // endpoint
 productsRouter.get("/get_products/", get);
@@ -59,6 +61,18 @@ productsRouter.delete(
   isLogin,
   isAllowed("admin"),
   drop
+);
+productsRouter.post(
+  "/test",
+  (req, res, next) =>
+    memoryUpload.single("image")(req, res, (err) => {
+      errorHandler(err, res, next);
+    }),
+  cloudinaryUploader,
+  (req, res) => {
+    console.log(req.file);
+    res.status(204).send();
+  }
 );
 // export router
 module.exports = productsRouter;

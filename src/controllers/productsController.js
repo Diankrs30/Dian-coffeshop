@@ -16,10 +16,10 @@ const productsController = {
       const result = await productsRepo.getProducts(queryParams, limit, offset);
       const totalData = await productsRepo.getTotalProduct(queryParams);
       const totalPage = Math.ceil(totalData.rows[0].count / limit);
-      // const path = `http://${
-      //   req.get("host") + req.baseUrl + req.route.path
-      // }?page`;
-      const path = `${req.baseUrl + req.route.path}?page`;
+      const path = `http://${
+        req.get("host") + req.baseUrl + req.route.path
+      }?page`;
+      // const path = `${req.baseUrl + req.route.path}?page`;
 
       page = Number(page);
       let queryString = "";

@@ -10,15 +10,21 @@ const morgan = require("morgan");
 const logger = morgan(
   ":method :url :status :res[content-length] - :response-time ms"
 );
+const cors = require("cors");
 // console.log(morgan);
 // console.log(logger);
 // connection to db
+const corsOptions = {
+  origin: "*",
+};
 postgreDb
   .connect()
   .then(() => {
     console.log("DB connected");
     // akses file static yang ada di directory
     server.use(express.static("./public"));
+
+    server.use(cors(corsOptions));
     // parser untuk body agar input dapat dilakukan lebih dinamis
     server.use(express.json());
     server.use(express.urlencoded({ extended: false }));
