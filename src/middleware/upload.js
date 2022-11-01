@@ -33,7 +33,7 @@ let Upload = multer({
 }).single("image");
 
 exports.fileUpload = async (req, res, next) => {
-  await diskUpload(req, res, function (error) {
+  await Upload(req, res, function (error) {
     if (error) {
       //instanceof multer.MulterError
       res.status(500);
