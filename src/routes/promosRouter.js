@@ -4,7 +4,8 @@ const promosRouter = express.Router();
 const { isLogin } = require("../middleware/isLogin");
 const isAllowed = require("../middleware/isAllowed");
 const validate = require("../middleware/validate");
-const { fileUpload } = require("../middleware/upload");
+const { memoryStorageUpload } = require("../middleware/uploadMemostorage");
+const { uploaderPromo } = require("../middleware/cloudinary");
 const {
   get,
   getDetailPromo,
@@ -20,7 +21,7 @@ promosRouter.post(
   "/create_promo/",
   isLogin,
   isAllowed("admin"),
-  fileUpload,
+  memoryStorageUpload,
   validate.body(
     "promo_description",
     "discount",
@@ -36,7 +37,8 @@ promosRouter.patch(
   "/edit_promo/:id",
   isLogin,
   isAllowed("admin"),
-  fileUpload,
+  memoryStorageUpload,
+  uploaderPromo,
   validate.body(
     "promo_description",
     "discount",

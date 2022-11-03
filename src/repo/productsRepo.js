@@ -126,6 +126,7 @@ const createProduct = (body) => {
 };
 
 const editProducts = (body, params) => {
+  // console.log("repoedit", params);
   return new Promise((resolve, reject) => {
     let query = "update products set ";
     const values = [];

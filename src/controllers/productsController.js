@@ -1,6 +1,9 @@
 const productsRepo = require("../repo/productsRepo");
 const response = require("../helper/response");
 const { login } = require("./auth");
+const DatauriParser = require("datauri/parser");
+const path = require("path");
+const cloudinary = require("../config/cloudinary");
 
 const productsController = {
   get: async (req, res) => {
@@ -75,9 +78,9 @@ const productsController = {
     }
   },
 
-  create: async (req, res) => {
+  /*create: async (req, res) => {
     try {
-      const image = `/images/${req.file.filename}`;
+      const image = `${req.file.secure_url}`;
       const body = { ...req.body, image };
       console.log(body);
       // console.log(image);
@@ -95,13 +98,56 @@ const productsController = {
         message: "Internal server error",
       });
     }
+  },*/
+
+  create: async (req, res) => {
+    try {
+      let body = req.body;
+
+      const result = await productsRepo.createProduct(body);
+      // console.log("create", result.rows[0].id);
+      const parser = new DatauriParser();
+      const buffer = req.file.buffer;
+      const ext = path.extname(req.file.originalname).toString();
+      const datauri = parser.format(ext, buffer);
+      const fileName = `product_${result.rows[0].id}`;
+      const cloudinaryOpt = {
+        public_id: fileName,
+        folder: "dian-coffeeshop",
+      };
+
+      const uploadImg = await cloudinary.uploader.upload(
+        datauri.content,
+        cloudinaryOpt
+      );
+
+      body = { ...body, image: uploadImg.secure_url };
+      const insertImage = await productsRepo.editProducts(
+        { image: body.image },
+        { id: result.rows[0].id }
+      );
+      // console.log("update", insertImage);
+      const payload = { ...body, id: result.rows[0].id };
+      return response(res, {
+        status: 200,
+        data: payload,
+        message: "Create success",
+      });
+    } catch (error) {
+      console.log(error);
+      return response(res, {
+        error,
+        status: 500,
+        message: "Internal server error",
+      });
+    }
   },
 
   edit: async (req, res) => {
     try {
       let body = req.body;
       if (req.file) {
-        const image = `/images/${req.file.filename}`;
+        const image = `${req.file.secure_url}`;
         body = { ...body, image };
       }
 

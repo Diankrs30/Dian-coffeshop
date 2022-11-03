@@ -4,7 +4,9 @@ const usersRouter = express.Router();
 const { isLogin } = require("../middleware/isLogin");
 const isAllowed = require("../middleware/isAllowed");
 const validate = require("../middleware/validate");
-const { fileUpload } = require("../middleware/upload");
+// const { fileUpload } = require("../middleware/upload");
+const { memoryStorageUpload } = require("../middleware/uploadMemostorage");
+const { uploader } = require("../middleware/cloudinary");
 const {
   get,
   getProfile,
@@ -22,8 +24,9 @@ usersRouter.patch(
   "/profile/",
   isLogin,
   isAllowed("user"),
-  // imageUpload.single("image"),
-  fileUpload,
+  // fileUpload,
+  memoryStorageUpload,
+  uploader,
   validate.body(
     "delivery_address",
     "display_name",

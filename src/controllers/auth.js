@@ -44,7 +44,7 @@ const auth = {
         role: checkEmail.rows[0].role,
       };
       const token = await jwt.sign(payload, process.env.SECRET_KEY, {
-        expiresIn: "60m",
+        expiresIn: "24h",
         issuer: process.env.ISSUER,
       });
       // console.log(token);

@@ -2,6 +2,9 @@
 const promosRepo = require("../repo/promos");
 const response = require("../helper/response");
 const { query } = require("express");
+const DatauriParser = require("datauri/parser");
+const path = require("path");
+const cloudinary = require("../config/cloudinary");
 
 const promosController = {
   get: async (req, res) => {
@@ -71,13 +74,35 @@ const promosController = {
 
   create: async (req, res) => {
     try {
-      const image = `/images/${req.file.filename}`;
-      const body = { ...req.body, image };
-      console.log(body);
+      let body = req.body;
+
       const result = await promosRepo.createPromos(body);
+      // console.log("create", result.rows[0].id);
+      const parser = new DatauriParser();
+      const buffer = req.file.buffer;
+      const ext = path.extname(req.file.originalname).toString();
+      const datauri = parser.format(ext, buffer);
+      const fileName = `promo_${result.rows[0].id}`;
+      const cloudinaryOpt = {
+        public_id: fileName,
+        folder: "dian-coffeeshop",
+      };
+
+      const uploadImg = await cloudinary.uploader.upload(
+        datauri.content,
+        cloudinaryOpt
+      );
+
+      body = { ...body, image: uploadImg.secure_url };
+      const insertImage = await promosRepo.editPromos(
+        { image: body.image },
+        { id: result.rows[0].id }
+      );
+      // console.log("update", insertImage);
+      const payload = { ...body, id: result.rows[0].id };
       return response(res, {
         status: 200,
-        data: { ...result.rows[0], ...body },
+        data: payload,
         message: "Create success",
       });
     } catch (error) {
@@ -85,7 +110,7 @@ const promosController = {
       return response(res, {
         error,
         status: 500,
-        message: "Internal service error",
+        message: "Internal server error",
       });
     }
   },
@@ -94,7 +119,7 @@ const promosController = {
     try {
       let body = req.body;
       if (req.file) {
-        const image = `/images/${req.file.filename}`;
+        const image = `${req.file.secure_url}`;
         body = { ...body, image };
       }
       // console.log(body);

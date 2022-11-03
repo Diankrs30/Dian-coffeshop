@@ -146,8 +146,10 @@ const userController = {
     try {
       const id = req.userPayload.user_id;
       let body = req.body;
+      console.log(req.file);
       if (req.file) {
-        const image = `/images/${req.file.filename}`;
+        // const image = `/images/${req.file.filename}`;
+        const image = `${req.file.secure_url}`;
         body = { ...body, image };
       }
       const result = await usersRepo.editUsers(body, id);
