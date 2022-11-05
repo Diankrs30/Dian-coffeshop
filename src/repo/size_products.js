@@ -1,5 +1,18 @@
 const postgreDb = require("../config/postgre");
 
+const getSizeProduct = () => {
+  return new Promise((resolve, reject) => {
+    const query = "select * from size_products";
+    postgreDb.query(query, (error, result) => {
+      if (error) {
+        console.log(error);
+        return reject(error);
+      }
+      resolve(result);
+    });
+  });
+};
+
 const editSize = (body, params) => {
   return new Promise((resolve, reject) => {
     let query = "update size_products set ";
@@ -27,6 +40,7 @@ const editSize = (body, params) => {
 
 const size_ProductsRepo = {
   editSize,
+  getSizeProduct,
 };
 
 module.exports = size_ProductsRepo;
