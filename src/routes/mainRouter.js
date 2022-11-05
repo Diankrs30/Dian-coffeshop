@@ -9,6 +9,7 @@ const categoriesRouter = require("./categoriesRouter");
 const promosRouter = require("./promosRouter");
 const transactionsRouter = require("./transactionsRouter");
 const size_productsRouter = require("./size_productsRouter");
+const deliveryMethodsRouter = require("./deliveryMethodsRouter");
 
 // membuat router
 const mainRouter = express.Router();
@@ -20,10 +21,11 @@ const prefix = "/dian-coffeeshop";
 mainRouter.use(`${prefix}/users`, usersRouter);
 mainRouter.use(`${prefix}/auth`, authRouter);
 mainRouter.use(`${prefix}/products`, productsRouter);
-// mainRouter.use(`${prefix}/categories`, categoriesRouter);
+mainRouter.use(`${prefix}/categories`, categoriesRouter);
 mainRouter.use(`${prefix}/promos`, promosRouter);
 mainRouter.use(`${prefix}/size_products`, size_productsRouter);
 mainRouter.use(`${prefix}/transactions`, transactionsRouter);
+mainRouter.use(`${prefix}/delivery_methods`, deliveryMethodsRouter);
 
 // membuat http route
 mainRouter.get("/", (req, res) => {
