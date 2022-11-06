@@ -17,9 +17,19 @@ const {
 const { checkToken } = require("../middleware/isLogin");
 
 usersRouter.get("/get_users/", isLogin, isAllowed("admin"), get);
-usersRouter.get("/profile_user/", isLogin, isAllowed("user"), getProfile);
+usersRouter.get(
+  "/profile_user/",
+  isLogin,
+  isAllowed("user", "admin"),
+  getProfile
+);
 usersRouter.post("/register/", validate.registerBody, register);
-usersRouter.patch("/account/", isLogin, isAllowed("user"), editPassword);
+usersRouter.patch(
+  "/account/",
+  isLogin,
+  isAllowed("user", "admin"),
+  editPassword
+);
 usersRouter.patch(
   "/profile/",
   isLogin,
