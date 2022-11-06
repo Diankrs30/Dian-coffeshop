@@ -117,7 +117,7 @@ const transactionsController = {
       await Promise.all(
         product_item.map(async (product) => {
           const { price, promo, quantity } = product;
-          const total_price = price * quantity;
+          const total_price = price;
           const payment_items = await transactionsRepo.createTransactionsItems(
             product,
             transaction_id,

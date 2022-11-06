@@ -20,7 +20,7 @@ const getTransactionByUserId = (user_id, limit, offset) => {
   console.log(user_id);
   return new Promise((resolve, reject) => {
     let query =
-      "select transaction_product_size.id, products.product_name, products.image, products.price, transaction.status_order from transaction join transaction_product_size on transaction_product_size.transactions_id = transaction.id join products on transaction_product_size.products_id = products.id where transaction_product_size.user_id = $1 order by transaction_product_size.id";
+      "select transaction_product_size.id, transaction_product_size.total_price, products.product_name, products.image, transaction.status_order from transaction join transaction_product_size on transaction_product_size.transactions_id = transaction.id join products on transaction_product_size.products_id = products.id where transaction_product_size.user_id = $1 order by transaction_product_size.id";
 
     query += ` LIMIT ${limit} OFFSET ${offset}`;
 
