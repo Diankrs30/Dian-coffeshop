@@ -165,7 +165,7 @@ const editTransaction = (body, params) => {
 };
 const deleteTransactions = (params) => {
   return new Promise((resolve, reject) => {
-    const query = "delete from transaction_poduct_size where id = $1";
+    const query = "delete from transaction where id = $1";
 
     postgreDb.query(query, [params.id], (error, result) => {
       if (error) {
