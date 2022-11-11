@@ -75,7 +75,7 @@ const promosController = {
   create: async (req, res) => {
     try {
       let body = req.body;
-
+      console.log(body);
       const result = await promosRepo.createPromos(body);
       // console.log("create", result.rows[0].id);
       const parser = new DatauriParser();

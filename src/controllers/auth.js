@@ -4,11 +4,14 @@ const jwt = require("jsonwebtoken");
 const usersRepo = require("../repo/usersRepo");
 const { token } = require("morgan");
 const { Client } = require("pg");
-const client = require("../config/redis");
+const redis = require("../config/redis");
+const JWTR = require("jwt-redis").default;
 
 const auth = {
   login: async (req, res) => {
     try {
+      // const jwtr = new JWTR(client);
+
       let regex = new RegExp("[a-z0-9]+@[a-z]+.[a-z]{2,3}");
       if (regex.test(req.body.email) === false) {
         return response(res, {
@@ -49,17 +52,17 @@ const auth = {
       });
       // console.log(token);
       await usersRepo.insertWhitelistToken(token);
+      const test = await redis.setEx(
+        `getToken: ${payload.user_id}`,
+        3600,
+        token
+      );
+      console.log(test);
       return response(res, {
         status: 200,
-        data: { name: payload.email, role: payload.role, token },
+        data: { name: payload.email, role: payload.role, token, test },
         message: "Login success",
       });
-
-      // client.on("connect", function () {
-      //   console.log("Redis plugged in.");
-      // });
-      // await client.connect();
-      // await client.set();
     } catch (error) {
       console.log(error);
       return response(res, {
@@ -71,10 +74,14 @@ const auth = {
   },
   logout: async (req, res) => {
     try {
+      const id = req.userPayload.user_id;
+      console.log(id);
       const token = req.header("x-access-token");
       // console.log(token);
-      const user = await usersRepo.deleteWhitelistToken(token);
-      response(res, { status: 200, message: "Logout success" });
+      // const user = await usersRepo.deleteWhitelistToken(token);
+      const test = await redis.del(`getToken: ${id}`);
+      console.log(test);
+      response(res, { status: 200, data: test, message: "Logout success" });
     } catch (error) {
       console.log(error);
       return response(res, {

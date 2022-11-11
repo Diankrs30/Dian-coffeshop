@@ -2,6 +2,7 @@ require("dotenv").config();
 const { response } = require("express");
 const express = require("express");
 const postgreDb = require("./src/config/postgre");
+const redis = require("./src/config/redis");
 const mainRouter = require("./src/routes/mainRouter");
 const server = express();
 // init port

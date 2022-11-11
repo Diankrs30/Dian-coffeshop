@@ -132,10 +132,50 @@ const getPassword = (id) => {
   });
 };
 
+const getUserByOTP = (OTP) => {
+  return new Promise((resolve, reject) => {
+    const query = "select * from users where otp = $1";
+    postgreDb.query(query, [OTP], (error, result) => {
+      if (error) {
+        console.log(error);
+        return reject(error);
+      }
+      resolve(result);
+    });
+  });
+};
+
 const editPassword = (id, password) => {
   return new Promise((resolve, reject) => {
     const query = " update users set password_user = $1 where id = $2";
     postgreDb.query(query, [password, id], (error, result) => {
+      if (error) {
+        console.log(error);
+        return reject(error);
+      }
+      resolve(result);
+    });
+  });
+};
+
+const updateOTPUser = (generateOTP, email) => {
+  return new Promise((resolve, reject) => {
+    const query = "update users set otp =$1 where email = $2";
+    postgreDb.query(query, [generateOTP, email], (error, result) => {
+      if (error) {
+        console.log(error);
+        return reject(error);
+      }
+      resolve(result);
+    });
+  });
+};
+
+const updateUserByOTP = (password, OTP, email) => {
+  return new Promise((resolve, reject) => {
+    const query =
+      "update users set password_user = $1, otp = $2 where email = $3";
+    postgreDb.query(query, [password, OTP, email], (error, result) => {
       if (error) {
         console.log(error);
         return reject(error);
@@ -214,11 +254,14 @@ const usersRepo = {
   getUsers,
   getTotalUser,
   getUserProfile,
+  getUserByOTP,
+  getPassword,
   register,
   checkEmailAndPhone,
-  getPassword,
   editUsers,
+  updateUserByOTP,
   editPassword,
+  updateOTPUser,
   insertWhitelistToken,
   checkWhitelistToken,
   deleteWhitelistToken,

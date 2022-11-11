@@ -12,6 +12,8 @@ const {
   getProfile,
   register,
   editPassword,
+  resetPassword,
+  forgotPassword,
   editUser,
 } = require("../controllers/usersController");
 const { checkToken } = require("../middleware/isLogin");
@@ -30,6 +32,8 @@ usersRouter.patch(
   isAllowed("user", "admin"),
   editPassword
 );
+usersRouter.patch("/resetpassword", resetPassword);
+usersRouter.post("/forgotpassword", forgotPassword);
 usersRouter.patch(
   "/profile/",
   isLogin,

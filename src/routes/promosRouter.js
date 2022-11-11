@@ -23,6 +23,7 @@ promosRouter.post(
   isAllowed("admin"),
   memoryStorageUpload,
   validate.body(
+    "promo_name",
     "promo_description",
     "discount",
     "start_discount",
@@ -40,6 +41,7 @@ promosRouter.patch(
   memoryStorageUpload,
   uploaderPromo,
   validate.body(
+    "promo_name",
     "promo_description",
     "discount",
     "start_discount",
