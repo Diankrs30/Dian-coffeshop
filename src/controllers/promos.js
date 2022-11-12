@@ -75,9 +75,7 @@ const promosController = {
   create: async (req, res) => {
     try {
       let body = req.body;
-      console.log(body);
       const result = await promosRepo.createPromos(body);
-      // console.log("create", result.rows[0].id);
       const parser = new DatauriParser();
       const buffer = req.file.buffer;
       const ext = path.extname(req.file.originalname).toString();
@@ -98,7 +96,6 @@ const promosController = {
         { image: body.image },
         { id: result.rows[0].id }
       );
-      // console.log("update", insertImage);
       const payload = { ...body, id: result.rows[0].id };
       return response(res, {
         status: 200,
