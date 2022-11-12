@@ -54,7 +54,7 @@ const auth = {
       await usersRepo.insertWhitelistToken(token);
       const test = await redis.setEx(
         `getToken: ${payload.user_id}`,
-        "24h",
+        24 * 60 * 60,
         token
       );
       console.log(test);
