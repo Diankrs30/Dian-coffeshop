@@ -1,6 +1,7 @@
 const usersRepo = require("../repo/usersRepo");
 const response = require("../helper/response");
 const bcrypt = require("bcrypt");
+const { sendMail } = require("../helper/mail");
 
 const userController = {
   get: async (req, res) => {
@@ -91,7 +92,31 @@ const userController = {
         });
       }
 
-      const result = await usersRepo.register(req.body);
+      const passwordHash = await bcrypt.hash(req.body.password_user, 10);
+
+      const pinActivation = Math.floor(Math.random() * 1000000);
+      console.log(pinActivation);
+
+      const setData = {
+        email: req.body.email,
+        password_user: passwordHash,
+        phone_number: req.body.phone_number,
+        pinActivation: pinActivation,
+      };
+
+      const result = await usersRepo.register(setData);
+
+      const setSendEmail = {
+        to: req.body.email,
+        subject: "Email Verification !",
+        name: req.body.first_name,
+        // template: "verificationEmail.html",
+        template: "verificationEmail.html",
+        buttonUrl: `https://10.0.3.2:8070/Login/${setData.pinActivation}`,
+      };
+
+      // await sendMail(setSendEmail);
+
       return response(res, {
         status: 200,
         data: {
@@ -99,7 +124,8 @@ const userController = {
           email: req.body.email,
           phone_number: req.body.phone_number,
         },
-        message: "Register success",
+        message:
+          "Register success! Please check your email to verify your account.",
       });
     } catch (error) {
       console.log(error);

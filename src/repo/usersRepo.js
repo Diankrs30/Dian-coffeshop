@@ -79,28 +79,49 @@ const getUserProfile = (id) => {
   });
 };
 
+// const register = (body) => {
+//   return new Promise((resolve, reject) => {
+//     const { email, password_user, phone_number } = body;
+//     bcrypt.hash(password_user, 10, (error, hashedPassword) => {
+//       if (error) {
+//         console.log(error);
+//         return reject(error);
+//       }
+//       const query =
+//         "insert into users (email, password_user, phone_number) values ($1,$2,$3) returning id";
+//       postgreDb.query(
+//         query,
+//         [email, hashedPassword, phone_number],
+//         (error, queryResult) => {
+//           if (error) {
+//             console.log(error);
+//             return reject(error);
+//           }
+//           resolve(queryResult);
+//         }
+//       );
+//     });
+//   });
+// };
+
 const register = (body) => {
   return new Promise((resolve, reject) => {
-    const { email, password_user, phone_number } = body;
-    bcrypt.hash(password_user, 10, (error, hashedPassword) => {
-      if (error) {
-        console.log(error);
-        return reject(error);
-      }
-      const query =
-        "insert into users (email, password_user, phone_number) values ($1,$2,$3) returning id";
-      postgreDb.query(
-        query,
-        [email, hashedPassword, phone_number],
-        (error, queryResult) => {
-          if (error) {
-            console.log(error);
-            return reject(error);
-          }
-          resolve(queryResult);
+    const { email, password_user, phone_number, pinActivation } = body;
+
+    console.log(body);
+    const query =
+      "insert into users (email, password_user, phone_number, pin_activation) values ($1,$2,$3,$4) returning id";
+    postgreDb.query(
+      query,
+      [email, password_user, phone_number, pinActivation],
+      (error, result) => {
+        if (error) {
+          console.log(error);
+          return reject(error);
         }
-      );
-    });
+        return resolve(result);
+      }
+    );
   });
 };
 
