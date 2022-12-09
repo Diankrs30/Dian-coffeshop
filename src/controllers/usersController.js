@@ -230,9 +230,8 @@ const userController = {
         otp: `${generateOTP}`,
       };
 
-      const response = await sendMail(setSendEmail);
-      console.log(response);
-
+      const respon = await sendMail(setSendEmail);
+      console.log(respon);
       return response(res, {
         status: 200,
         message: "Please check your email to reset your password!",
@@ -248,16 +247,26 @@ const userController = {
   },
   resetPassword: async (req, res) => {
     const OTP = req.body.otp;
-    const password = req.body.password;
+    const new_pwd = req.body.new_password;
+    const confirm_pwd = req.body.confirm_password;
+    console.log(new_pwd);
+    console.log(confirm_pwd);
     try {
-      const result = await usersRepo.getUserByOTP(OTP, password);
+      const result = await usersRepo.getUserByOTP(OTP, new_pwd, confirm_pwd);
       if (result.rows.length === 0) {
         return response(res, {
           status: 400,
           message: "OTP is worng",
         });
       }
-      const passwordHash = await bcrypt.hash(password, 10);
+
+      if (new_pwd !== confirm_pwd) {
+        return response(res, {
+          status: 400,
+          message: "Password doesn't match",
+        });
+      }
+      const passwordHash = await bcrypt.hash(new_pwd, 10);
       const email = result.rows[0].email;
       const setOTP = null;
       console.log(email);
