@@ -271,6 +271,39 @@ const deleteWhitelistToken = (token) => {
   });
 };
 
+// const getUserByPin = (pin) => {
+//   return new Promise((resolve, reject) => {
+//     const query = "select * from users where pin_activation = $1";
+
+//     postgreDb.query(query, [pin], (error, result) => {
+//       if (error) {
+//         console.log(error);
+//         return reject(error);
+//       }
+//       return resolve(result);
+//     });
+//   });
+// };
+
+// const updateStatus = (setData, id) => {
+//   return new Promise((resolve, reject) => {
+//     console.log(setData);
+//     const query =
+//       " update users set status = $1, pin_activation = $2 where id = $3";
+//     postgreDb.query(
+//       query,
+//       [setData.status, setData.pin_activation, id],
+//       (error, result) => {
+//         if (error) {
+//           console.log(error);
+//           return reject(error);
+//         }
+//         resolve(result);
+//       }
+//     );
+//   });
+// };
+
 const usersRepo = {
   getUsers,
   getTotalUser,
@@ -286,6 +319,8 @@ const usersRepo = {
   insertWhitelistToken,
   checkWhitelistToken,
   deleteWhitelistToken,
+  // getUserByPin,
+  // updateStatus,
 };
 
 module.exports = usersRepo;

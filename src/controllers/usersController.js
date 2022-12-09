@@ -94,26 +94,26 @@ const userController = {
 
       const passwordHash = await bcrypt.hash(req.body.password_user, 10);
 
-      const pinActivation = Math.floor(Math.random() * 1000000);
-      console.log(pinActivation);
+      // const pinActivation = Math.floor(Math.random() * 1000000);
+      // console.log(pinActivation);
 
       const setData = {
         email: req.body.email,
         password_user: passwordHash,
         phone_number: req.body.phone_number,
-        pinActivation: pinActivation,
+        // pinActivation: pinActivation,
       };
 
       const result = await usersRepo.register(setData);
 
-      const setSendEmail = {
-        to: req.body.email,
-        subject: "Email Verification !",
-        name: req.body.first_name,
-        // template: "verificationEmail.html",
-        template: "verificationEmail.html",
-        buttonUrl: `https://10.0.3.2:8070/Login/${setData.pinActivation}`,
-      };
+      // const setSendEmail = {
+      //   to: req.body.email,
+      //   subject: "Email Verification !",
+      //   name: req.body.first_name,
+      //   // template: "verificationEmail.html",
+      //   template: "verificationEmail.html",
+      //   buttonUrl: `https://10.0.3.2:8070/Login/${setData.pinActivation}`,
+      // };
 
       // await sendMail(setSendEmail);
 
@@ -125,7 +125,8 @@ const userController = {
           phone_number: req.body.phone_number,
         },
         message:
-          "Register success! Please check your email to verify your account.",
+          // "Register success! Please check your email to verify your account.",
+          "Register succes!",
       });
     } catch (error) {
       console.log(error);
@@ -136,6 +137,41 @@ const userController = {
       });
     }
   },
+  // updateStatus: async (req, res) => {
+  //   try {
+  //     const { key } = req.params;
+  //     console.log("key", key);
+  //     const checkPin = await usersRepo.getUserByPin(key);
+
+  //     console.log(">>>>>", checkPin.rows);
+  //     if (checkPin.rows.length === 0) {
+  //       return response(res, {
+  //         status: 404,
+  //         message: "User not found",
+  //       });
+  //     }
+
+  //     const id = checkPin.rows[0].id;
+  //     // console.log(id);
+  //     const setData = {
+  //       status: "active",
+  //       pin_activation: null,
+  //     };
+
+  //     await usersRepo.updateStatus(setData, id);
+  //     return response(res, {
+  //       status: 200,
+  //       message: "Success! Active account.",
+  //     });
+  //   } catch (error) {
+  //     console.log(error);
+  //     return response(res, {
+  //       error,
+  //       status: 500,
+  //       message: "Internal server error",
+  //     });
+  //   }
+  // },
   editPassword: async (req, res) => {
     const body = req.body;
     // console.log(req.userPayload.user_id);
@@ -185,9 +221,21 @@ const userController = {
       console.log(generateOTP);
 
       const result = await usersRepo.updateOTPUser(generateOTP, req.body.email);
+
+      const setSendEmail = {
+        to: req.body.email,
+        subject: " Reset Pasword",
+        name: checkEmail.rows[0].email,
+        template: "forgotEmail.html",
+        otp: `${generateOTP}`,
+      };
+
+      const response = await sendMail(setSendEmail);
+      console.log(response);
+
       return response(res, {
         status: 200,
-        message: "create OTP success",
+        message: "Please check your email to reset your password!",
       });
     } catch (error) {
       console.log(error);
