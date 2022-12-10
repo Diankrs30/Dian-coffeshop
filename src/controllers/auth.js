@@ -60,7 +60,13 @@ const auth = {
       console.log(test);
       return response(res, {
         status: 200,
-        data: { name: payload.email, role: payload.role, token, test },
+        data: {
+          id: payload.user_id,
+          name: payload.email,
+          role: payload.role,
+          token,
+          test,
+        },
         message: "Login success",
       });
     } catch (error) {

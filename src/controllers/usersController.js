@@ -209,7 +209,7 @@ const userController = {
       if (regex.test(req.body.email) === false) {
         return response(res, {
           status: 400,
-          message: "Format email is worng",
+          message: "Format email is wronng",
         });
       }
       const checkEmail = await usersRepo.checkEmailAndPhone(req.body.email);
