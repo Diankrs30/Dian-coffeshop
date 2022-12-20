@@ -15,7 +15,7 @@ const {
 } = require("../controllers/promos");
 
 // endpoint
-promosRouter.get("/get_promos/", get);
+promosRouter.get("/", get);
 promosRouter.get("/detail_promo/:id", isLogin, getDetailPromo);
 promosRouter.post(
   "/create_promo/",
