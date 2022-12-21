@@ -55,15 +55,14 @@ const promosController = {
 
   getDetailPromo: async (req, res) => {
     try {
-      const user_id = req.userPayload.user_id;
-      console.log(user_id);
-      const result = await promosRepo.getDetailPromo(user_id);
+      const result = await promosRepo.getDetailPromo(req.params.id);
       return response(res, {
         status: 200,
         data: result.rows,
         message: "Get all success",
       });
     } catch (error) {
+      console.log(error);
       return response(res, {
         error,
         status: 500,
