@@ -293,9 +293,10 @@ const transactionsController = {
       const status_payment = transaction_status;
       const status_order = "process";
       const payment_id = order_id;
+
       const result = await transactionsRepo.updatePayment(
-        status_payment,
         status_order,
+        status_payment,
         payment_id
       );
 
@@ -305,6 +306,7 @@ const transactionsController = {
         message: "Payment success",
       });
     } catch (error) {
+      console.log(error);
       return response(res, {
         error,
         status: 500,
