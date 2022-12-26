@@ -111,7 +111,7 @@ const createTransactionsMidtrans = (body, payment_id, user_id) => {
   console.log(body);
   return new Promise((resolve, reject) => {
     const query =
-      "insert into transaction (user_id, address_detail, phone_number, payment_methods_id, delivery_methods_id, sub_total, tax_and_fee, shipping_cost, set_time, status_order, bank_account, total_payment) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) returning id";
+      "insert into transaction (user_id, address_detail, phone_number, payment_methods_id, delivery_methods_id, sub_total, tax_and_fee, shipping_cost, set_time, status_order, payment_id, bank_account, total_payment) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) returning id";
 
     const {
       address_detail,

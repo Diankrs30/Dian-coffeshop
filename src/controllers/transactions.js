@@ -148,7 +148,7 @@ const transactionsController = {
         payment_method: body.payment_method,
         delivery_methods_id: body.delivery_methods_id,
         set_time: body.set_time,
-        status: body.status,
+        status_order: body.status_order,
         status_delivery: body.status_delivery,
       };
       // console.log(req.body);
