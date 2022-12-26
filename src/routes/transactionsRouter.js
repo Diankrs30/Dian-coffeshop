@@ -42,7 +42,7 @@ transactionsRouter.post(
 transactionsRouter.post(
   "/transaction/",
   isLogin,
-  // isAllowed("user", "admin"),
+  isAllowed("user", "admin"),
   // validate.body(
   //   "product_item",
   //   "subtotal",
