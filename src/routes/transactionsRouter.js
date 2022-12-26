@@ -77,7 +77,7 @@ transactionsRouter.patch(
   ),
   edit
 );
-transactionsRouter.patch("/handleMidtrans/", handlePayment);
+transactionsRouter.post("/handleMidtrans/", handlePayment);
 transactionsRouter.delete(
   "/delete_history/:id",
   isLogin,
