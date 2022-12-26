@@ -1,6 +1,28 @@
 const transactionsRepo = require("../repo/transactions");
 const response = require("../helper/response");
 const snap = require("../helper/midtrans");
+const midtransClient = require("midtrans-client");
+
+let coreApi = new midtransClient.CoreApi({
+  isProduction: false,
+  serverKey: process.env.SERVER_KEY_MIDTRANS,
+  clientKey: process.env.CLIENT_KEY_MIDTRANS,
+});
+
+const paymentMidtrans = async (total_payment, bank_account, payment_id) => {
+  const parameter = {
+    payment_type: "bank_transfer",
+    transaction_details: {
+      gross_amount: parseInt(total_payment),
+      order_id: payment_id,
+    },
+    bank_transfer: {
+      bank: bank_account,
+    },
+  };
+
+  return await coreApi.charge(parameter);
+};
 
 const transactionsController = {
   get: async (req, res) => {
@@ -225,24 +247,31 @@ const transactionsController = {
         total_payment: body.total_payment,
       };
 
-      let parameter = {
-        transaction_details: {
-          order_id: payment_id,
-          gross_amount: body.total_payment,
-        },
-        credit_card: {
-          secure: true,
-        },
-      };
-      const redirectUrl = await snap
-        .createTransaction(parameter)
-        .then((transaction) => transaction.redirect_url);
+      // let parameter = {
+      //   transaction_details: {
+      //     order_id: payment_id,
+      //     gross_amount: body.total_payment,
+      //   },
+      //   credit_card: {
+      //     secure: true,
+      //   },
+      // };
+      // const redirectUrl = await snap
+      //   .createTransaction(parameter)
+      //   .then((transaction) => transaction.redirect_url);
 
-      const data = { ...result, redirectUrl };
+      // const data = { ...result, redirectUrl };
+
+      const midtrans = await paymentMidtrans(
+        body.total_payment,
+        body.bank_account,
+        payment_id
+      );
 
       return response(res, {
         status: 200,
-        data: data,
+        // data: data,
+        data: { result, midtrans },
         message: "Create transaction success",
       });
     } catch (error) {
@@ -289,9 +318,9 @@ const transactionsController = {
   },
   handlePayment: async (req, res) => {
     const { order_id, transaction_status } = req.body;
+    console.log(req.body);
     try {
       const status_payment = transaction_status;
-      console.log(req.body);
       const status_order = "process";
       const payment_id = order_id;
 
@@ -303,7 +332,7 @@ const transactionsController = {
 
       return response(res, {
         status: 200,
-        // data: result,
+        data: result,
         message: "Payment success",
       });
     } catch (error) {
