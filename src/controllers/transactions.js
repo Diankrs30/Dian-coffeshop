@@ -291,6 +291,7 @@ const transactionsController = {
     const { order_id, transaction_status } = req.body;
     try {
       const status_payment = transaction_status;
+      console.log(req.body);
       const status_order = "process";
       const payment_id = order_id;
 
@@ -302,7 +303,7 @@ const transactionsController = {
 
       return response(res, {
         status: 200,
-        data: result,
+        // data: result,
         message: "Payment success",
       });
     } catch (error) {
