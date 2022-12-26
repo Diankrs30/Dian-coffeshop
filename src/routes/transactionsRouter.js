@@ -14,6 +14,8 @@ const {
   create,
   edit,
   drop,
+  createTransactionMidtrans,
+  handlePayment,
 } = require("../controllers/transactions");
 // endpoint
 transactionsRouter.get("/detail_transaction/:id", isLogin, get);
@@ -37,6 +39,26 @@ transactionsRouter.post(
   ),
   create
 );
+transactionsRouter.post(
+  "/transaction/",
+  isLogin,
+  // isAllowed("user", "admin"),
+  // validate.body(
+  //   "product_item",
+  //   "subtotal",
+  //   "tax_and_fee",
+  //   "shipping_cost",
+  //   "address_detail",
+  //   "phone_number",
+  //   "payment_method",
+  //   "delivery_methods_id",
+  //   "set_time",
+  //   "status_order",
+  //   "bank_account",
+  //   "total_payment"
+  // ),
+  createTransactionMidtrans
+);
 transactionsRouter.patch(
   "/edit_transaction/:id",
   isLogin,
@@ -55,6 +77,7 @@ transactionsRouter.patch(
   ),
   edit
 );
+transactionsRouter.patch("/handleMidtrans", handlePayment);
 transactionsRouter.delete(
   "/delete_history/:id",
   isLogin,

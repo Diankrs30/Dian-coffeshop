@@ -107,6 +107,53 @@ const createTransactions = (body, user_id) => {
   });
 };
 
+const createTransactionsMidtrans = (body, payment_id, user_id) => {
+  console.log(body);
+  return new Promise((resolve, reject) => {
+    const query =
+      "insert into transaction (user_id, address_detail, phone_number, payment_methods_id, delivery_methods_id, sub_total, tax_and_fee, shipping_cost, set_time, status_order, bank_account, total_payment) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) returning id";
+
+    const {
+      address_detail,
+      phone_number,
+      payment_method,
+      delivery_methods_id,
+      subtotal,
+      tax_and_fee,
+      shipping_cost,
+      set_time,
+      status_order,
+      bank_account,
+      total_payment,
+    } = body;
+    postgreDb.query(
+      query,
+      [
+        user_id,
+        address_detail,
+        phone_number,
+        payment_method,
+        delivery_methods_id,
+        subtotal,
+        tax_and_fee,
+        shipping_cost,
+        set_time,
+        status_order,
+        payment_id,
+        bank_account,
+        total_payment,
+      ],
+      (error, result) => {
+        if (error) {
+          console.log(error);
+          return reject(error);
+        }
+        resolve(result);
+      }
+    );
+  });
+};
+
 const createTransactionsItems = (
   body,
   transactions_id,
@@ -163,6 +210,24 @@ const editTransaction = (body, params) => {
       });
   });
 };
+const updatePayment = (status_order, status_payment, payment_id) => {
+  return new Promise((resolve, reject) => {
+    const query =
+      "update transaction set status_order = $1, status_payment = $2 where payment_id =$3";
+
+    postgreDb.query(
+      query,
+      [status_order, status_payment, payment_id],
+      (error, result) => {
+        if (error) {
+          console.log(error);
+          return reject(error);
+        }
+        resolve(result);
+      }
+    );
+  });
+};
 const deleteTransactions = (params) => {
   return new Promise((resolve, reject) => {
     const query = "delete from transaction where id = $1";
@@ -186,6 +251,8 @@ const transactionsRepo = {
   createTransactionsItems,
   editTransaction,
   deleteTransactions,
+  createTransactionsMidtrans,
+  updatePayment,
 };
 
 module.exports = transactionsRepo;
