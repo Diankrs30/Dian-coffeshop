@@ -304,6 +304,20 @@ const deleteWhitelistToken = (token) => {
 //   });
 // };
 
+const updateTokenFcmUser = (tokenFcm, email) => {
+  return new Promise((resolve, reject) => {
+    const query = "update users set token_fcm = $1 where email = $2";
+
+    postgreDb.query(query, [tokenFcm, email], (error, result) => {
+      if (error) {
+        console.log(error);
+        return reject(error);
+      }
+      resolve(result);
+    });
+  });
+};
+
 const usersRepo = {
   getUsers,
   getTotalUser,
@@ -319,6 +333,7 @@ const usersRepo = {
   insertWhitelistToken,
   checkWhitelistToken,
   deleteWhitelistToken,
+  updateTokenFcmUser,
   // getUserByPin,
   // updateStatus,
 };

@@ -10,6 +10,7 @@ const promosRouter = require("./promosRouter");
 const transactionsRouter = require("./transactionsRouter");
 const size_productsRouter = require("./size_productsRouter");
 const deliveryMethodsRouter = require("./deliveryMethodsRouter");
+const notifRouter = require("./notif");
 
 // membuat router
 const mainRouter = express.Router();
@@ -26,6 +27,7 @@ mainRouter.use(`${prefix}/promos`, promosRouter);
 mainRouter.use(`${prefix}/size_products`, size_productsRouter);
 mainRouter.use(`${prefix}/transactions`, transactionsRouter);
 mainRouter.use(`${prefix}/delivery_methods`, deliveryMethodsRouter);
+mainRouter.use(`${prefix}/notification`, notifRouter);
 
 // membuat http route
 mainRouter.get("/", (req, res) => {

@@ -209,7 +209,7 @@ const userController = {
       if (regex.test(req.body.email) === false) {
         return response(res, {
           status: 400,
-          message: "Format email is wronng",
+          message: "Format email is wrong",
         });
       }
       const checkEmail = await usersRepo.checkEmailAndPhone(req.body.email);
@@ -256,7 +256,7 @@ const userController = {
       if (result.rows.length === 0) {
         return response(res, {
           status: 400,
-          message: "OTP is worng",
+          message: "OTP is wrong",
         });
       }
 
@@ -304,6 +304,30 @@ const userController = {
       return response(res, {
         status: 200,
         data: { id, ...body },
+        message: "Edit success",
+      });
+    } catch (error) {
+      return response(res, {
+        error,
+        status: 500,
+        message: "Internal server error",
+      });
+    }
+  },
+  updateTokenFcm: async (req, res) => {
+    try {
+      const tokenFcm = result.rows[0].token_fcm;
+      const email = req.body.email;
+      const result = await usersRepo.checkEmailAndPhone(email);
+      if (result.length === 0)
+        return response(res, {
+          status: 404,
+          message: "Email not found",
+        });
+
+      const update = await usersRepo.updateTokenFcmUser(tokenFcm, email);
+      return response(res, {
+        status: 200,
         message: "Edit success",
       });
     } catch (error) {
