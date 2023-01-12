@@ -1,4 +1,4 @@
-# Dian Coffeeshop - Backend
+# <div align="center">Dian Coffeeshop - Backend</div>
 
 <br/>
 
@@ -89,7 +89,7 @@ Endpoint: `/products`
 Clone this repository by run the following code:
 
 ```
-$ git clone https://github.com/Diankrs30/Dian-coffeshop.git
+$ git clone <this-repo-url>
 ```
 
 ### 2. Install dependency packages
