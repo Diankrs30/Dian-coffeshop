@@ -103,7 +103,7 @@ $ npm install
 ### 3. Run `npm run dev`
 
 Runs the app in the development mode.\
-Open [http://localhost:8070](http://localhost:8070) to view it in your browser.
+Open [local host](http://localhost:8070) to view it in your browser.
 
 The page will reload when you make changes.\
 You may also see any lint errors in the console.
